@@ -20,6 +20,8 @@ public class PuzzlePiece extends ImageView {
 
     private double mouseX;
     private double mouseY;
+    private double mouseZ;
+
 
     public PuzzlePiece(){
         super();
