@@ -19,15 +19,16 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.layout.BorderPane?>
 <?import com.example.puzzle_v1.DraggableGridPane?>
-<VBox fx:id="vBox" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.puzzle_v1.Controller">
+<HBox fx:id="hBox" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.puzzle_v1.Controller">
     <DraggableGridPane fx:id="puzzleGrid" alignment="BASELINE_CENTER">
 
     </DraggableGridPane>
-    <HBox alignment="BASELINE_CENTER">
+    <VBox alignment="BASELINE_CENTER">
         <Button fx:id="solveButton" text="solve" onAction="#onSolveButtonClick" opacity="-Infinity"/>
-        <Button  text="start" onAction="#onStartButtonClick"/>
-    </HBox>
+        <Button fx:id="restartButton" text="restart" onAction="#onRestartButtonClick" opacity="-Infinity"/>
+        <Button fx:id="startButton" text="start" onAction="#onStartButtonClick"/>
+    </VBox>
     <DraggableGridPane fx:id="puzzlePieces" alignment="BASELINE_CENTER">
 
     </DraggableGridPane>
-</VBox>
+</HBox>

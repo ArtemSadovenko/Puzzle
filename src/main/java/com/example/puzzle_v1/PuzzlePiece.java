@@ -8,6 +8,7 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,8 +21,8 @@ public class PuzzlePiece extends ImageView {
 
     private double mouseX;
     private double mouseY;
-    private double mouseZ;
 
+    private GridPane parentGridPane;
 
     public PuzzlePiece(){
         super();
@@ -29,7 +30,6 @@ public class PuzzlePiece extends ImageView {
     }
 
     public PuzzlePiece(Image image) {
-        // Call the superclass constructor with the provided image
         super(image);
         upSide = PieceBorder.UNDEFINED;
         downSide = PieceBorder.UNDEFINED;
@@ -38,33 +38,27 @@ public class PuzzlePiece extends ImageView {
         initDragAndDrop();
     }
 
+
+
+    public PuzzlePiece(Image image, GridPane parentGridPane, int columnIndex, int rowIndex) {
+        super(image);
+        this.parentGridPane = parentGridPane;
+        GridPane.setColumnIndex(this, columnIndex);
+        GridPane.setRowIndex(this, rowIndex);
+        initDragAndDrop();
+    }
+
     private void initDragAndDrop() {
-        this.setOnMousePressed(event -> {
-            mouseX = event.getSceneX();
-            mouseY = event.getSceneY();
-        });
-
         this.setOnDragDetected(event -> {
-            startFullDrag();
             Dragboard dragboard = this.startDragAndDrop(TransferMode.MOVE);
-//            ClipboardContent content = new ClipboardContent();
-//            content.put(DataFormat.IMAGE, this.getImage());
-//            dragboard.setContent(content);
-
+            ClipboardContent content = new ClipboardContent();
+            content.put(DataFormat.PLAIN_TEXT, "");
+            dragboard.setContent(content);
             event.consume();
         });
 
-        this.setOnMouseDragged(event -> {
-            double deltaX = event.getSceneX() - mouseX;
-            double deltaY = event.getSceneY() - mouseY;
-            this.setTranslateX(this.getTranslateX() + deltaX);
-            this.setTranslateY(this.getTranslateY() + deltaY);
-            mouseX = event.getSceneX();
-            mouseY = event.getSceneY();
-        });
-
         this.setOnDragOver(event -> {
-            if (event.getGestureSource() != this && event.getDragboard().hasImage()) {
+            if (event.getGestureSource() != this && event.getDragboard().hasContent(DataFormat.PLAIN_TEXT)) {
                 event.acceptTransferModes(TransferMode.MOVE);
             }
             event.consume();
@@ -73,33 +67,31 @@ public class PuzzlePiece extends ImageView {
         this.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
             boolean success = false;
-            if (dragboard.hasImage()) {
-                // Update the position of the dragged piece based on its new location
+            if (dragboard.hasContent(DataFormat.PLAIN_TEXT)) {
+                GridPane targetGridPane = (GridPane) this.getParent();
+                PuzzlePiece draggedPiece = (PuzzlePiece) event.getGestureSource();
+
                 int targetColIndex = GridPane.getColumnIndex(this);
                 int targetRowIndex = GridPane.getRowIndex(this);
-                GridPane.setColumnIndex((Node) dragboard.getContent(DataFormat.IMAGE), targetColIndex);
-                GridPane.setRowIndex((Node) dragboard.getContent(DataFormat.IMAGE), targetRowIndex);
+
+                Pane parent = (Pane) draggedPiece.getParent();
+                if (parent != null) {
+                    draggedPiece.setParentGridPane(parentGridPane);
+                    parent.getChildren().remove(draggedPiece);
+                }
+
+                targetGridPane.add(draggedPiece, targetColIndex, targetRowIndex);
 
                 success = true;
             }
             event.setDropCompleted(success);
             event.consume();
         });
+
+
     }
 
 
-    // Method to swap PuzzlePiece positions
-    private void swapPieces(PuzzlePiece otherPiece) {
-        int thisCol = GridPane.getColumnIndex(this);
-        int thisRow = GridPane.getRowIndex(this);
-        int otherCol = GridPane.getColumnIndex(otherPiece);
-        int otherRow = GridPane.getRowIndex(otherPiece);
-
-        GridPane.setColumnIndex(this, otherCol);
-        GridPane.setRowIndex(this, otherRow);
-        GridPane.setColumnIndex(otherPiece, thisCol);
-        GridPane.setRowIndex(otherPiece, thisRow);
-    }
 
     public PieceBorder getUpSide() {
         return upSide;
@@ -134,4 +126,11 @@ public class PuzzlePiece extends ImageView {
     }
 
 
+    public GridPane getParentGridPane() {
+        return parentGridPane;
+    }
+
+    public void setParentGridPane(GridPane parentGridPane) {
+        this.parentGridPane = parentGridPane;
+    }
 }
