@@ -1,2 +1,2 @@
 .idea
-src/main/resources/puzzlePieces/*.jpg
+src/main/resources/puzzlePieces/img*
